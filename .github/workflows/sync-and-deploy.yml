@@ -1,0 +1,69 @@
+name: Đồng bộ dữ liệu & triển khai
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '0 */6 * * *'   # mỗi 6 giờ (giờ UTC)
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Cài thư viện
+        run: npm install --no-audit --no-fund
+
+      - name: Ghi khóa service account ra file tạm
+        env:
+          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+        run: |
+          if [ -z "$GCP_SA_KEY" ]; then echo "Thiếu secret GCP_SA_KEY"; exit 1; fi
+          printf '%s' "$GCP_SA_KEY" > "$RUNNER_TEMP/sa.json"
+
+      - name: Đồng bộ từ BigQuery
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/sa.json
+          DASHBOARD_PASSWORD: ${{ secrets.DASHBOARD_PASSWORD }}
+          GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID || 'hv-data' }}
+          BQ_TABLE: ${{ vars.BQ_TABLE || 'hv-data.a_data_mart_sales.FactInventory' }}
+          BQ_LOCATION: ${{ vars.BQ_LOCATION || 'asia-southeast1' }}
+        run: npm run sync
+
+      - name: Xóa khóa tạm
+        if: always()
+        run: rm -f "$RUNNER_TEMP/sa.json"
+
+      - name: Kiểm tra không có dữ liệu chưa mã hóa
+        run: test ! -f site/data/data.json
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
