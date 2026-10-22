@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Báo cáo Kho</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js" defer></script>
+  <script type="module" src="js/app.js"></script>
+</head>
+<body>
+  <!-- Màn hình mở khóa -->
+  <main id="login" class="login">
+    <form id="login-form" class="login-card" autocomplete="off">
+      <h1>Báo cáo Kho</h1>
+      <p class="muted">Dữ liệu được mã hóa. Nhập mật khẩu để mở báo cáo.</p>
+      <label for="password">Mật khẩu</label>
+      <input id="password" type="password" required autocomplete="current-password">
+      <label class="check"><input id="remember" type="checkbox"> Nhớ trong phiên làm việc này</label>
+      <button type="submit" id="login-btn" disabled>Mở báo cáo</button>
+      <p id="login-msg" class="msg muted" role="alert">Đang tải dữ liệu…</p>
+    </form>
+  </main>
+
+  <!-- Ứng dụng -->
+  <div id="app" hidden>
+    <header class="topbar">
+      <div>
+        <h1>Báo cáo Kho</h1>
+        <p id="freshness" class="muted small"></p>
+      </div>
+      <nav class="tabs" role="tablist">
+        <button role="tab" data-tab="overview" class="active">Tổng quan</button>
+        <button role="tab" data-tab="flow">Nhập xuất tồn</button>
+        <button role="tab" data-tab="sku">Phân tích SKU</button>
+        <button role="tab" data-tab="risk">Hiệu quả &amp; rủi ro</button>
+        <button role="tab" data-tab="notes">Ghi chú dữ liệu</button>
+      </nav>
+    </header>
+
+    <section class="filters" aria-label="Bộ lọc">
+      <div class="f">
+        <label for="f-from">Từ ngày</label>
+        <input id="f-from" type="date">
+      </div>
+      <div class="f">
+        <label for="f-to">Đến ngày</label>
+        <input id="f-to" type="date">
+      </div>
+      <div class="f">
+        <label for="f-gran">Tổng hợp</label>
+        <select id="f-gran">
+          <option value="day">Ngày</option>
+          <option value="week">Tuần</option>
+          <option value="month" selected>Tháng</option>
+        </select>
+      </div>
+      <div class="f" id="f-countries"></div>
+      <div class="f" id="f-warehouses"></div>
+      <div class="f">
+        <label for="f-q">SKU / tên</label>
+        <input id="f-q" type="search" placeholder="Tìm SKU…">
+      </div>
+      <div class="f" id="f-statuses"></div>
+      <div class="f" id="f-speeds"></div>
+      <div class="f" id="f-reasons"></div>
+      <div class="f">
+        <label for="f-currency">Tiền tệ</label>
+        <select id="f-currency">
+          <option value="VND">VND (quy đổi)</option>
+          <option value="LOCAL">Tiền địa phương</option>
+        </select>
+      </div>
+      <div class="f f-actions">
+        <button id="f-reset" class="ghost" type="button">Đặt lại</button>
+      </div>
+    </section>
+    <p id="scope-note" class="scope-note"></p>
+
+    <main id="view" class="view"></main>
+  </div>
+
+  <!-- Chi tiết SKU -->
+  <dialog id="sku-dialog" class="drawer">
+    <div id="sku-detail"></div>
+  </dialog>
+</body>
+</html>
