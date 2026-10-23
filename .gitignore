@@ -1,0 +1,14 @@
+# Thông tin xác thực – không bao giờ đưa lên GitHub
+*.json.key
+sa.json
+service-account*.json
+*-credentials.json
+.env
+.env.*
+
+# Dữ liệu sinh ra khi đồng bộ (được tạo lại trên GitHub Actions)
+site/data/
+
+node_modules/
+.DS_Store
+Thumbs.db
